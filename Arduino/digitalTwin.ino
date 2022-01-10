@@ -1,41 +1,14 @@
-#include <SPI.h>
 #include <WiFiNINA.h>
-#include "EspMQTTClient.h"
-#include "ArduinoJson.h"
+#include <ArduinoMqttClient.h>
 #include "keys.h"
 
-EspMQTTClient client(
-  WIFI_SSID,
-  WIFI_PASSWORD,
-  MQTT_IP,  // MQTT Broker server ip
-  MQTT_USER,   // Can be omitted if not needed
-  MQTT_PASSWORD,   // Can be omitted if not needed
-  MQTT_CLIENT_NAME,     // Client name that uniquely identify your device
-  MQTT_PORT              // The MQTT port, default to 1883. this line can be omitted
-);
 
-DynamicJsonDocument docIn(1024);
-DynamicJsonDocument docOut(1024);
+WiFiClient wifiClient;
+MqttClient mqttClient(wifiClient);
 
-void onConnectionEstablished()
-{
-  Serial.println("connected to mqtt\n");//lambda payload: payload....
-  client.subscribe(MQTT_SUBSCRIBE_CHANNEL, [](const String & payload) {
-    Serial.println(payload);
-    deserializeJson(docIn, payload);
-    const char* key = docIn["key"];
-    String keyS = String(key);
-    float val = docIn["value"];
-    if (keyS=="LED")
-    {
-      if (val>0.5)
-        digitalWrite(D1, HIGH);
-      else
-        digitalWrite(D1, LOW);
-    }
-  });
-}
+unsigned long previousMillis = 0;
 
+int count = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -61,7 +34,16 @@ void setup() {
     status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     delay(5000);
   }
-  
+
+  mqttClient.setId(MQTT_CLIENT_NAME);
+  mqttClient.setUsernamePassword(MQTT_USER,MQTT_PASSWORD);
+
+  if(!mqttClient.connect(MQTT_BROKER, MQTT_PORT)){
+    Serial.print("MQTT connection failed! Error code = ");
+    Serial.println(mqttClient.connectError());
+    while(1);
+  }
+
 
 }
 
@@ -76,22 +58,26 @@ void loop() {
   Serial.println(WiFi.RSSI());
   delay(1000);
 
+  //Send Message
+  mqttClient.poll();
+
+  unsigned long currentMillis = millis();
+
+  if(currentMillis - previousMillis >= MQTT_INTERVAL){
+    previousMillis = currentMillis;
+
+    Serial.print("Sending message to topic: ");
+    Serial.print(MQTT_TOPIC);
+    Serial.println(WiFi.RSSI());
+
+    //send Message
+    /*mqttClient.beginMessage(MQTT_TOPIC);
+    mqttClient.print(WiFi.RSSI());
+    mqttClient.endMessage();*/
+
+    delay(MQTT_INTERVAL);
+
+  }
   
-  //MQTT Part
-  client.loop();
-
-  if (abs(val-oldVal)<10)
-    return; //nothing to send
-  
-  oldVal = val;
-
-  docOut["key"] = "TestMQTTArduino";
-  docOut["value"]   = WiFi.RSSI();
-
-  std::string json;
-  serializeJson(docOut, json);
-
-  client.publish(MQTT_SUBSCRIBE_CHANNEL, json.c_str());
-
 }
 
