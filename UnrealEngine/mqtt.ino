@@ -4,7 +4,7 @@
 EspMQTTClient client(
   "maxwlan123",
   "blablub123",
-  "maqiatto.com",  // MQTT Broker server ip
+  "172.20.10.3:1883",  // MQTT Broker server ip
   "xfweoqmupsxzzqpyft@sdvgeft.com",   // Can be omitted if not needed
   "blabla",   // Can be omitted if not needed
   "someid1",     // Client name that uniquely identify your device
