@@ -6,14 +6,13 @@ const char* WIFI_SSID     = "FRITZ!Box 7430 HS PH";
 const char* WIFI_PASSWORD = "z7xr32vbcnfnux7c73hx";
 
 //MQTT
-const char* MQTT_IP = "172.20.10.3";
+const char* MQTT_BROKER = "maqiatto.com";
 const char* MQTT_CLIENT_NAME = "arduino_mqtt";
-const char* MQTT_PORT = "1883";
-const char* MQTT_USER = "josh";
-const char* MQTT_PASSWORD = "1234";
-const char* MQTT_SUBSCRIBE_CHANNEL = "";
+const int* MQTT_PORT = 1883; 
+const char* MQTT_USER = "jan@jnkeitel.de";
+const char* MQTT_PASSWORD = "JQWnSABwr.mC43u";
+const char* MQTT_TOPIC = "jan@jnkeitel.de/test";
 
-const char* DEVICE_ID     = "Your-Device-ID";
-const char* DEVICE_TOKEN  = "Your-Device-Token";
+const long* MQTT_INTERVAL = 10000; //Waiting time in milliseconds
 
 #endif
