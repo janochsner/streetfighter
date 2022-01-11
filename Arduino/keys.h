@@ -11,8 +11,9 @@ const char* MQTT_CLIENT_NAME = "arduino_mqtt";
 const int* MQTT_PORT = 1883; 
 const char* MQTT_USER = "jan@jnkeitel.de";
 const char* MQTT_PASSWORD = "JQWnSABwr.mC43u";
-const char* MQTT_TOPIC = "jan@jnkeitel.de/test";
+const char* MQTT_TOPIC_ANGLE = "jan@jnkeitel.de/angle";
+const char* MQTT_TOPIC_ACC = "jan@jnkeitel.de/acc";
 
-const long* MQTT_INTERVAL = 10000; //Waiting time in milliseconds
+const long* MQTT_INTERVAL = 500; //Waiting time in milliseconds
 
 #endif
