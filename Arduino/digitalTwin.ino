@@ -1,83 +1,45 @@
-#include <WiFiNINA.h>
-#include <ArduinoMqttClient.h>
-#include "keys.h"
 
+#include "Wire.h"
+#include <MPU6050_light.h>
 
-WiFiClient wifiClient;
-MqttClient mqttClient(wifiClient);
-
-unsigned long previousMillis = 0;
-
-int count = 0;
+MPU6050 mpu(Wire);
+unsigned long timer = 0;
 
 void setup() {
-  // put your setup code here, to run once:
-
   Serial.begin(9600);
-  while(!Serial); //Wait until board is ready
-
-  int status = WL_IDLE_STATUS;
-
-  while(status!=WL_CONNECTED){
-    Serial.print("Connection to ");
-    Serial.println(WIFI_SSID);
-    status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    delay(2000);
-  }
-
-  Serial.print("IP adress: ");
-  Serial.println(WiFi.localIP());
-
-  pinMode(LED_BUILTIN, OUTPUT);
-
-  while ( status != WL_CONNECTED) {
-    status = WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    delay(5000);
-  }
-
-  mqttClient.setId(MQTT_CLIENT_NAME);
-  mqttClient.setUsernamePassword(MQTT_USER,MQTT_PASSWORD);
-
-  if(!mqttClient.connect(MQTT_BROKER, MQTT_PORT)){
-    Serial.print("MQTT connection failed! Error code = ");
-    Serial.println(mqttClient.connectError());
-    while(1);
-  }
-
-
+  Wire.begin();
+  
+  byte status = mpu.begin();
+  Serial.print(F("MPU6050 status: "));
+  Serial.println(status);
+  while(status!=0){ } // stop everything if could not connect to MPU6050
+  
+  Serial.println(F("Calculating offsets, do not move MPU6050"));
+  delay(1000);
+  // mpu.upsideDownMounting = true; // uncomment this line if the MPU6050 is mounted upside-down
+  mpu.calcOffsets(); // gyro and accelero
+  Serial.println("Done!\n");
 }
-
-int oldVal = 0;
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
-  Serial.print("Signal strength in dBm: ");
-  Serial.println(WiFi.RSSI());
-  delay(1000);
-
-  //Send Message
-  mqttClient.poll();
-
-  unsigned long currentMillis = millis();
-
-  if(currentMillis - previousMillis >= MQTT_INTERVAL){
-    previousMillis = currentMillis;
-
-    Serial.print("Sending message to topic: ");
-    Serial.print(MQTT_TOPIC);
-    Serial.println(WiFi.RSSI());
-
-    //send Message
-    /*mqttClient.beginMessage(MQTT_TOPIC);
-    mqttClient.print(WiFi.RSSI());
-    mqttClient.endMessage();*/
-
-    delay(MQTT_INTERVAL);
-
-  }
+  mpu.update();
   
+  if((millis()-timer)>10){ // print data every 10ms
+	Serial.print("X : ");
+	Serial.print(mpu.getAngleX());
+	Serial.print("\tY : ");
+	Serial.print(mpu.getAngleY());
+	Serial.print("\tZ : ");
+	Serial.println(mpu.getAngleZ());    
+	Serial.println(" ");
+     
+	Serial.print("\t AC X : ");
+	Serial.print(mpu.getAccX());     
+	Serial.print("\t AC Y : ");
+	Serial.print(mpu.getAccY());
+  Serial.print("\t AC Z : ");
+	Serial.println(mpu.getAccZ());
+	timer = millis();
+  delay(200);  
+  }
 }
-
