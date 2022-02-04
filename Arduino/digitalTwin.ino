@@ -100,9 +100,8 @@ void loop() {
   //Send Message
   mqttClient.poll();
 
-  //send Message
-  mqttClient.beginMessage(MQTT_TOPIC_ANGLE);
-  //mqttClient.print(WiFi.RSSI());
+  //begin mqtt message
+  mqttClient.beginMessage(MQTT_TOPIC_ANGLE);  
   //mqttClient.print(mpu.getAngleZ());// left positive value // right negative value    
 	
   //Set Angle
@@ -120,6 +119,7 @@ void loop() {
   	angle = 0;
   }
 	
+  //send mqtt message
   mqttClient.print(angle);	
   initialAngle = currentAngle;  
 	
@@ -158,7 +158,8 @@ void loop() {
   initialAcceleration = currentAcceleration;  	
 	
   mqttClient.endMessage();
-
+  //end mqtt message
+	
   //delay
   delay(MQTT_INTERVAL);
   
