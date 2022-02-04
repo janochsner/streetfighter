@@ -19,6 +19,13 @@ int currentAngle=0;
 int angle = 0;
 int deviation = 0;
 
+//acceleration
+int initialAcceleration=0;
+int currentAcceleration=0;
+int initialUEAcceleration = -5;
+int acceleration = 0;
+int accDeviation = 0;
+
 //Gyroskop
 MPU6050 mpu(Wire);
 unsigned long timer = 0;
@@ -97,6 +104,8 @@ void loop() {
   mqttClient.beginMessage(MQTT_TOPIC_ANGLE);
   //mqttClient.print(WiFi.RSSI());
   //mqttClient.print(mpu.getAngleZ());// left positive value // right negative value    
+	
+  //Set Angle
   currentAngle = mpu.getAngleZ();
   
   deviation = initialAngle - currentAngle;
@@ -115,12 +124,39 @@ void loop() {
   initialAngle = currentAngle;  
 	
   mqttClient.endMessage();
-
+  //end mqtt message
+	
+  //begin mqtt message
   Serial.print("Sending message to topic: ");
   Serial.print(MQTT_TOPIC_ACC);
 
+  //set mqtt topic
   mqttClient.beginMessage(MQTT_TOPIC_ACC);
-  mqttClient.print(mpu.getGyroX());
+  //mqttClient.print(mpu.getGyroX());
+	
+  //set Acceleration
+  currentAcceleration = mpu.getGyroX();
+  
+  accDeviation = initialAcceleration - currentAcceleration;
+  
+  if(deviation>10||deviation<-10){
+  	if(accDeviation>0){
+		acceleration = 1;
+	}else{
+		acceleration = -1;
+	}
+  }else{
+  	acceleration = 0;
+  }
+	
+  if(initialUEAcceleration!=acceleration){	
+  	mqttClient.print(acceleration);	
+  }
+  
+  initialUEAcceleration = acceleration;
+	
+  initialAcceleration = currentAcceleration;  	
+	
   mqttClient.endMessage();
 
   //delay
