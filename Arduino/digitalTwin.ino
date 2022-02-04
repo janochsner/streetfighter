@@ -141,9 +141,9 @@ void loop() {
   
   if(deviation>10||deviation<-10){
   	if(accDeviation>0){
-		acceleration = 1;
-	}else{
 		acceleration = -1;
+	}else{
+		acceleration = 1;
 	}
   }else{
   	acceleration = 0;
