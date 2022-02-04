@@ -22,9 +22,8 @@ int deviation = 0;
 //acceleration values
 int initialAcceleration=0;
 int currentAcceleration=0;
-int initialUEAcceleration = -5;
+int initialUEAcceleration = -3;
 int acceleration = 0;
-int accDeviation = 0;
 
 //Gyroskop
 MPU6050 mpu(Wire);
@@ -136,22 +135,22 @@ void loop() {
 	
   //set Acceleration
   currentAcceleration = mpu.getGyroX();
-  
-  accDeviation = initialAcceleration - currentAcceleration;
-  
-  if(deviation>10||deviation<-10){
-  	if(accDeviation>0){
-		acceleration = -1;
-	}else{
+    
+  if(currentAcceleration>1||currentAcceleration<-1){
+  	if(currentAcceleration>0){
 		acceleration = 1;
+	}else{
+		acceleration = -1;
 	}
   }else{
   	acceleration = 0;
   }
 	
-  if(initialUEAcceleration!=acceleration){	
-  	mqttClient.print(acceleration);	
-  }
+  /*if(initialUEAcceleration!=acceleration){	
+  	
+  }*/
+
+  mqttClient.print(acceleration);	
   
   initialUEAcceleration = acceleration;
 	
