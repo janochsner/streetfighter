@@ -13,6 +13,12 @@ unsigned long previousMillis = 0;
 
 int count = 0;
 
+//angle value
+int initialAngle=0;
+int currentAngle=0;
+int angle = 0;
+int deviation = 0;
+
 //Gyroskop
 MPU6050 mpu(Wire);
 unsigned long timer = 0;
@@ -90,7 +96,24 @@ void loop() {
   //send Message
   mqttClient.beginMessage(MQTT_TOPIC_ANGLE);
   //mqttClient.print(WiFi.RSSI());
-  mqttClient.print(mpu.getAngleZ());// left positive value // right negative value    
+  //mqttClient.print(mpu.getAngleZ());// left positive value // right negative value    
+  currentAngle = mpu.getAngleZ();
+  
+  deviation = initialAngle - currentAngle;
+  
+  if(deviation>20||deviation<-20){
+  	if(deviation>0){
+		angle = 1;
+	}else{
+		angle = -1;
+	}
+  }else{
+  	angle = 0;
+  }
+	
+  mqttClient.print(angle);	
+  initialAngle = currentAngle;  
+	
   mqttClient.endMessage();
 
   Serial.print("Sending message to topic: ");
