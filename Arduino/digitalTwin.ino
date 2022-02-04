@@ -13,13 +13,13 @@ unsigned long previousMillis = 0;
 
 int count = 0;
 
-//angle value
+//angle values
 int initialAngle=0;
 int currentAngle=0;
 int angle = 0;
 int deviation = 0;
 
-//acceleration
+//acceleration values
 int initialAcceleration=0;
 int currentAcceleration=0;
 int initialUEAcceleration = -5;
